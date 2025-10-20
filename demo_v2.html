@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>村务管理助手 - 小耕</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: #f8fafc;
+        }
+
+        /* 应用容器 */
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(to bottom, #f0f4f8, #e2e8f0);
+        }
+
+        /* 顶部按钮栏 */
+        .top-bar {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            z-index: 10;
+        }
+
+        .top-button {
+            flex: 1;
+            font-size: 13px;
+            height: 40px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .top-button:hover {
+            background: #f7fafc;
+            border-color: #667eea;
+        }
+
+        .top-button:active {
+            transform: scale(0.95);
+        }
+
+        /* 对话流区域 */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 12px 80px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* 消息容器 */
+        .message {
+            display: flex;
+            gap: 8px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.agent {
+            flex-direction: row;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .message-avatar.user {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .message-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .message-text {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .message.user .message-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: auto;
+        }
+
+        /* 功能卡片 */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1a202c;
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 4px;
+            margin-bottom: 12px;
+        }
+
+        .card-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .card-button {
+            width: 100%;
+            justify-content: flex-start;
+            text-align: left;
+            height: auto;
+            padding: 12px 16px;
+            font-size: 14px;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-button:hover {
+            background: #f7fafc;
+            border-color: #667eea;
+        }
+
+        .card-button:active {
+            transform: scale(0.98);
+        }
+
+        /* 模式选择按钮 */
+        .mode-button {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+        }
+
+        .mode-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .mode-content {
+            flex: 1;
+            text-align: left;
+        }
+
+        .mode-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #1a202c;
+        }
+
+        .mode-desc {
+            font-size: 12px;
+            color: #718096;
+            line-height: 1.4;
+        }
+
+        /* 字段列表 */
+        .field-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .field-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f7fafc;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .field-remove {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            color: #e53e3e;
+            display: flex;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+
+        .field-remove:hover {
+            transform: scale(1.2);
+        }
+
+        .field-add {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .field-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .field-input:focus {
+            border-color: #667eea;
+        }
+
+        /* 确认信息 */
+        .confirm-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .confirm-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .confirm-label {
+            font-size: 12px;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .confirm-value {
+            font-size: 14px;
+            color: #1a202c;
+            line-height: 1.5;
+        }
+
+        /* 进度信息 */
+        .progress-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .progress-row {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        /* 导出描述 */
+        .export-desc {
+            font-size: 13px;
+            color: #718096;
+            line-height: 1.6;
+            margin-top: 8px;
+        }
+
+        /* 文件上传区域 */
+        .file-upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 16px;
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            background: #f7fafc;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-upload-area:hover {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+
+        /* 底部输入栏 */
+        .input-bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            background: white;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+            z-index: 10;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+        }
+
+        .icon-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .icon-button:hover {
+            background: #5568d3;
+        }
+
+        .icon-button:active {
+            transform: scale(0.95);
+        }
+
+        /* 人员列表 */
+        .people-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 8px;
+            background: #f7fafc;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .people-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .people-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .people-name {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .fill-button {
+            font-size: 12px;
+            padding: 4px 12px;
+            height: auto;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .card-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .select-all {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #475569;
+            cursor: pointer;
+        }
+
+        .select-all input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* 代填表单样式 */
+        .fill-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-field label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: #3b82f6;
+        }
+
+        .form-input:disabled {
+            background: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .form-input::placeholder {
+            color: #94a3b8;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-outline {
+            background: white;
+            color: #374151;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-outline:hover {
+            background: #f7fafc;
+            border-color: #667eea;
+        }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+
+        .w-full {
+            width: 100%;
+        }
+
+        .mt-3 {
+            margin-top: 12px;
+        }
+
+        /* 自定义人群列表 */
+        .custom-audience-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 8px;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .audience-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .audience-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        /* 滚动条样式 */
+        .chat-area::-webkit-scrollbar,
+        .people-list::-webkit-scrollbar,
+        .custom-audience-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .chat-area::-webkit-scrollbar-track,
+        .people-list::-webkit-scrollbar-track,
+        .custom-audience-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-area::-webkit-scrollbar-thumb,
+        .people-list::-webkit-scrollbar-thumb,
+        .custom-audience-list::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 2px;
+        }
+
+        .chat-area::-webkit-scrollbar-thumb:hover,
+        .people-list::-webkit-scrollbar-thumb:hover,
+        .custom-audience-list::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+        }
+
+        /* 隐藏文件输入 */
+        input[type="file"] {
+            display: none;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 480px) {
+            .app-container {
+                max-width: 100%;
+            }
+            
+            .input-bar {
+                max-width: 100%;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* 加载动画 */
+        .loading-dots {
+            display: inline-flex;
+            gap: 2px;
+        }
+
+        .loading-dots span {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #667eea;
+            animation: loading 1.4s infinite ease-in-out;
+        }
+
+        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes loading {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 顶部固定按钮栏 -->
+        <div class="top-bar">
+            <button class="top-button" onclick="handleUploadFile()">
+                📁 上传文件
+            </button>
+            <button class="top-button" onclick="handleTaskStatus()">
+                📊 任務情況
+            </button>
+            <button class="top-button" onclick="handleExportTable()">
+                📄 导出表格
+            </button>
+        </div>
+
+        <!-- 对话流区域 -->
+        <div class="chat-area" id="chatArea">
+            <!-- 演示从文件上传成功后开始 -->
+            <div class="message agent">
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <div class="message-text">您好,李书记!今天有什么填表任务需要我帮忙吗?</div>
+                </div>
+            </div>
+            <div class="message user">
+                <div class="message-content">
+                    <div class="message-text">我需要创建一个危房排查登记表</div>
+                </div>
+                <div class="message-avatar user">👤</div>
+            </div>
+            <div class="message agent">
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <div class="message-text">✅ 文件上传成功！收到！接下来您希望如何处理这份表格呢？</div>
+                    <div class="card">
+                        <div class="card-title">请选择任务模式</div>
+                        <div class="card-buttons">
+                            <button class="card-button mode-button" onclick="handleModeSelect('direct')">
+                                <div class="mode-icon">✍️</div>
+                                <div class="mode-content">
+                                    <div class="mode-title">直接填写</div>
+                                    <div class="mode-desc">适用于紧急任务，由您直接填写或上传材料</div>
+                                </div>
+                            </button>
+                            <button class="card-button mode-button" onclick="handleModeSelect('collect')">
+                                <div class="mode-icon">📢</div>
+                                <div class="mode-content">
+                                    <div class="mode-title">收集信息</div>
+                                    <div class="mode-desc">适用于常规任务，向村民分发并收集</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部输入栏 -->
+        <div class="input-bar">
+            <input
+                type="text"
+                placeholder="输入消息..."
+                id="chatInput"
+                class="chat-input"
+                onkeypress="handleKeyPress(event)"
+            />
+            <button class="icon-button">
+                🎤
+            </button>
+            <button class="icon-button" onclick="handleSendMessage()">
+                ➤
+            </button>
+        </div>
+    </div>
+
+    <!-- 隐藏的文件输入 -->
+    <input type="file" id="fileInput" accept=".xlsx,.xls,.doc,.docx,.pdf" onchange="handleFileChange(event, 'local')">
+    <input type="file" id="wechatFileInput" accept=".xlsx,.xls,.doc,.docx,.pdf" onchange="handleFileChange(event, 'wechat')">
+    <input type="file" id="assistMaterialInput" accept=".xlsx,.xls,.doc,.docx,.pdf" onchange="handleAssistMaterialChange(event)">
+
+    <script>
+        let messages = [];
+        let currentStep = 'modeSelect'; // 从模式选择开始
+        let selectedFields = ['姓名', '身份证号', '房屋结构', '隐患等级', '排查人'];
+        let selectedPeople = [];
+        let selectAll = false;
+
+        const peopleList = [
+            { id: 1, name: '王大妈' },
+            { id: 2, name: '李叔' },
+            { id: 3, name: '赵四' },
+            { id: 4, name: '陈伯' },
+            { id: 5, name: '张婶' },
+            { id: 6, name: '刘大爷' },
+            { id: 7, name: '孙大姐' },
+            { id: 8, name: '周叔' }
+        ];
+
+        function addMessage(type, text, card = null) {
+            const chatArea = document.getElementById('chatArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            let avatarHtml = '';
+            if (type === 'agent') {
+                avatarHtml = '<div class="message-avatar">🤖</div>';
+            } else {
+                avatarHtml = '<div class="message-avatar user">👤</div>';
+            }
+            
+            let contentHtml = '';
+            if (text) {
+                contentHtml += `<div class="message-text">${text}</div>`;
+            }
+            if (card) {
+                contentHtml += renderCard(card);
+            }
+            
+            if (type === 'agent') {
+                messageDiv.innerHTML = avatarHtml + '<div class="message-content">' + contentHtml + '</div>';
+            } else {
+                messageDiv.innerHTML = '<div class="message-content">' + contentHtml + '</div>' + avatarHtml;
+            }
+            
+            chatArea.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function renderCard(card) {
+            switch (card.type) {
+                case 'fileSource':
+                    return `
+                        <div class="card">
+                            <div class="card-title">请选择创建方式</div>
+                            <div class="card-buttons">
+                                <button class="card-button" onclick="handleLocalFileUpload()">
+                                    📁 从本地文件上传
+                                </button>
+                                <button class="card-button" onclick="handleWechatFileUpload()">
+                                    💬 从微信聊天记录选择
+                                </button>
+                                <button class="card-button" onclick="handlePhotoRecognition()">
+                                    📷 拍照识别表格
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                
+                case 'modeSelect':
+                    return `
+                        <div class="card">
+                            <div class="card-title">请选择任务模式</div>
+                            <div class="card-buttons">
+                                <button class="card-button mode-button" onclick="handleModeSelect('direct')">
+                                    <div class="mode-icon">✍️</div>
+                                    <div class="mode-content">
+                                        <div class="mode-title">直接填写</div>
+                                        <div class="mode-desc">适用于紧急任务，由您直接填写或上传材料</div>
+                                    </div>
+                                </button>
+                                <button class="card-button mode-button" onclick="handleModeSelect('collect')">
+                                    <div class="mode-icon">📢</div>
+                                    <div class="mode-content">
+                                        <div class="mode-title">收集信息</div>
+                                        <div class="mode-desc">适用于常规任务，向村民分发并收集</div>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                
+                case 'directFillOptions':
+                    return `
+                        <div class="card">
+                            <div class="card-title">请选择填写方式</div>
+                            <div class="card-buttons">
+                                <button class="card-button" onclick="handleBigTableFill()">
+                                    📊 大表预填写
+                                    <div style="font-size: 12px; color: #718096; margin-top: 4px;">
+                                        系统将根据'村大表'，为您预填基础信息
+                                    </div>
+                                </button>
+                                <button class="card-button" onclick="handleAssistMaterialUpload()">
+                                    📤 上传辅助文档
+                                    <div style="font-size: 12px; color: #718096; margin-top: 4px;">
+                                        您可以上传一份参考文件，边看边填
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                
+                case 'fieldConfirm':
+                    let fieldsHtml = selectedFields.map(field => 
+                        `<div class="field-item">
+                            <span>${field}</span>
+                            <button onclick="removeField('${field}')" class="field-remove">✕</button>
+                        </div>`
+                    ).join('');
+                    
+                    return `
+                        <div class="card">
+                            <div class="card-title">字段确认</div>
+                            <div class="field-list">${fieldsHtml}</div>
+                            <div class="field-add">
+                                <input type="text" placeholder="输入新字段名称" id="newFieldInput" class="field-input">
+                                <button class="btn btn-outline btn-sm" onclick="addField()">
+                                    ➕ 增加字段
+                                </button>
+                            </div>
+                            <button class="btn btn-primary w-full mt-3" onclick="handleFieldConfirm()">
+                                ✅ 确定字段，下一步
+                            </button>
+                        </div>
+                    `;
+                
+                case 'fillResult':
+                    return `
+                        <div class="card">
+                            <div class="card-title">填写结果</div>
+                            <div class="export-desc">
+                                表格已自动填写完成,您可以导出查看或继续手动编辑。
+                            </div>
+                            <button class="btn btn-primary w-full mt-3">
+                                📥 导出已填写表格
+                            </button>
+                        </div>
+                    `;
+                
+                case 'audienceSelect':
+                    return `
+                        <div class="card">
+                            <div class="card-title">请选择通知人群</div>
+                            <div class="card-buttons">
+                                <button class="card-button" onclick="handleAudienceSelect('household')">
+                                    👤 按户主
+                                </button>
+                                <button class="card-button" onclick="handleAudienceSelect('specific')">
+                                    🎯 按特定人群
+                                </button>
+                                <button class="card-button" onclick="handleAudienceSelect('all')">
+                                    全员
+                                </button>
+                                <button class="card-button" onclick="handleAudienceSelect('custom')">
+                                    ✏️ 自定义选择
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                
+                case 'specificAudience':
+                    return `
+                        <div class="card">
+                            <div class="card-title">请选择特定人群类型</div>
+                            <div class="card-buttons">
+                                <button class="card-button" onclick="handleSpecificAudienceSelect('lowIncome')">
+                                    💰 低保户 (45人)
+                                </button>
+                                <button class="card-button" onclick="handleSpecificAudienceSelect('elderly')">
+                                    👴 60岁以上老人 (89人)
+                                </button>
+                                <button class="card-button" onclick="handleSpecificAudienceSelect('disabled')">
+                                    ♿ 残疾人 (23人)
+                                </button>
+                                <button class="card-button" onclick="handleSpecificAudienceSelect('poverty')">
+                                    📋 建档立卡贫困户 (37人)
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                
+                case 'customAudience':
+                    return `
+                        <div class="card">
+                            <div class="card-title">自定义选择人员</div>
+                            <div class="export-desc">
+                                您可以通过搜索姓名、身份证号或其他条件来筛选需要通知的人员。
+                            </div>
+                            <div class="field-add mt-3">
+                                <input type="text" placeholder="搜索人员姓名或身份证号" class="field-input">
+                                <button class="btn btn-outline btn-sm">搜索</button>
+                            </div>
+                            <div class="custom-audience-list">
+                                <div class="audience-item">
+                                    <input type="checkbox">
+                                    <span>张三 (身份证: 110***********234)</span>
+                                </div>
+                                <div class="audience-item">
+                                    <input type="checkbox">
+                                    <span>李四 (身份证: 110***********567)</span>
+                                </div>
+                                <div class="audience-item">
+                                    <input type="checkbox">
+                                    <span>王五 (身份证: 110***********890)</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary w-full mt-3" onclick="handleCustomAudienceConfirm()">
+                                ✅ 确认选择 (已选3人)
+                            </button>
+                        </div>
+                    `;
+                
+                case 'sendConfirm':
+                    const count = card.count || 152;
+                    return `
+                        <div class="card">
+                            <div class="card-title">发送确认</div>
+                            <div class="confirm-info">
+                                <div class="confirm-row">
+                                    <span class="confirm-label">通知内容:</span>
+                                    <span class="confirm-value">"各位户主,请尽快填写《危房排查登记表》,事关居住安全,感谢配合。"</span>
+                                </div>
+                                <div class="confirm-row">
+                                    <span class="confirm-label">发送人数:</span>
+                                    <span class="confirm-value">${count}人</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary w-full mt-3" onclick="handleSendConfirm(${count})">
+                                🚀 确认发送
+                            </button>
+                        </div>
+                    `;
+                
+                case 'taskSummary':
+                    return `
+                        <div class="card">
+                            <div class="card-title">危房排查登记表 - 任务进度</div>
+                            <div class="progress-info">
+                                <div class="progress-row">
+                                    <span>✅ 已填写: 35/152</span>
+                                </div>
+                                <div class="progress-row">
+                                    <span>✏️ 未填写: 117/152</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary w-full mt-3" onclick="handleViewDetailList()">
+                                ➡️ 查看详细名单与操作
+                            </button>
+                        </div>
+                    `;
+                
+                case 'detailList':
+                    return renderDetailListCard();
+                
+                case 'fillForm':
+                    return `
+                        <div class="card">
+                            <div class="card-title">为 ${card.name} 代填表单</div>
+                            <div class="fill-form">
+                                <div class="form-field">
+                                    <label>姓名</label>
+                                    <input type="text" value="${card.name}" disabled class="form-input">
+                                </div>
+                                <div class="form-field">
+                                    <label>身份证号</label>
+                                    <input type="text" placeholder="请输入身份证号" class="form-input">
+                                </div>
+                                <div class="form-field">
+                                    <label>房屋结构</label>
+                                    <input type="text" placeholder="请输入房屋结构" class="form-input">
+                                </div>
+                                <div class="form-field">
+                                    <label>隐患等级</label>
+                                    <select class="form-input">
+                                        <option>请选择</option>
+                                        <option>无隐患</option>
+                                        <option>一般隐患</option>
+                                        <option>严重隐患</option>
+                                    </select>
+                                </div>
+                                <div class="form-field">
+                                    <label>排查人</label>
+                                    <input type="text" placeholder="请输入排查人" class="form-input">
+                                </div>
+                            </div>
+                            <button class="btn btn-primary w-full mt-3">
+                                ✅ 提交代填表单
+                            </button>
+                        </div>
+                    `;
+                
+                case 'exportDraft':
+                    return `
+                        <div class="card">
+                            <div class="card-title">导出数据草稿</div>
+                            <div class="export-desc">
+                                当前数据将导出为Excel文件,方便您在电脑上进行最终审核、修改,并补充未在平台上的村民信息。
+                            </div>
+                            <button class="btn btn-primary w-full mt-3" onclick="handleExportDraft()">
+                                📥 导出草稿Excel
+                            </button>
+                        </div>
+                    `;
+                
+                case 'fileUpload':
+                    return `
+                        <div class="card">
+                            <div class="file-upload-area">
+                                <div style="font-size: 48px; color: #9ca3af; margin-bottom: 8px;">📁</div>
+                                <div style="font-size: 14px; color: #9ca3af;">点击或拖拽文件到此处上传</div>
+                                <button class="btn btn-outline mt-3">选择文件</button>
+                            </div>
+                        </div>
+                    `;
+                
+                default:
+                    return '';
+            }
+        }
+
+        function renderDetailListCard() {
+            let peopleHtml = peopleList.map(person => `
+                <div class="people-item">
+                    <input type="checkbox" ${selectedPeople.includes(person.id) ? 'checked' : ''} 
+                           onchange="handleSelectPerson(${person.id})">
+                    <span class="people-name">${person.name}</span>
+                    <button class="fill-button" onclick="handleFillFor('${person.name}')">
+                        ✍️ 代为填写
+                    </button>
+                </div>
+            `).join('');
+
+            return `
+                <div class="card">
+                    <div class="card-title">未填写人员名单 (117人)</div>
+                    <div class="card-subtitle">可在此对村民进行单独或批量操作</div>
+                    <div class="people-list">${peopleHtml}</div>
+                    <div class="card-actions">
+                        <div class="select-all">
+                            <input type="checkbox" ${selectAll ? 'checked' : ''} onchange="handleSelectAll()">
+                            <span>全选</span>
+                        </div>
+                        <button class="btn btn-outline btn-sm" ${selectedPeople.length === 0 ? 'disabled' : ''} 
+                                onclick="handleBatchRemind()">
+                            🔔 催办选中人员
+                        </button>
+                        <button class="btn btn-outline btn-sm" onclick="handleRemindAll()">
+                            📣 一键催办所有未填写人员
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 事件处理函数
+        function handleUploadFile() {
+            addMessage('agent', '好的,请选择您的文件来源,我们来创建一个新任务。', { type: 'fileSource' });
+        }
+
+        function handleTaskStatus() {
+            addMessage('agent', '好的,这是"危房排查登记表"的最新任务进展。', { type: 'taskSummary' });
+        }
+
+        function handleExportTable() {
+            addMessage('agent', '好的,我们将为您导出包含当前所有已收集数据的工作草稿。', { type: 'exportDraft' });
+        }
+
+        function handleLocalFileUpload() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handleWechatFileUpload() {
+            document.getElementById('wechatFileInput').click();
+        }
+
+        function handlePhotoRecognition() {
+            // 模拟文件上传成功，直接跳转到模式选择
+            addMessage('agent', '✅ 拍照识别成功！收到！接下来您希望如何处理这份表格呢？', { type: 'modeSelect' });
+        }
+
+        function handleFileChange(event, source) {
+            const file = event.target.files[0];
+            if (file) {
+                const sourceText = source === 'local' ? '本地文件' : '微信聊天记录';
+                addMessage('agent', `✅ ${sourceText}上传成功！收到！接下来您希望如何处理这份表格呢？`, { type: 'modeSelect' });
+            }
+        }
+
+        // 核心调整：任务模式选择
+        function handleModeSelect(mode) {
+            if (mode === 'direct') {
+                currentStep = 'directFill';
+                addMessage('agent', '好的，已选择"直接填写"模式。请问您希望如何填写这份表格？', { type: 'directFillOptions' });
+            } else if (mode === 'collect') {
+                currentStep = 'fieldRecognizing';
+                addMessage('agent', '好的，我们将向村民收集信息。正在识别您上传文件中的表格字段，请稍候<span class="loading-dots"><span></span><span></span><span></span></span>');
+                
+                // 模拟识别过程
+                setTimeout(() => {
+                    addMessage('agent', '识别完成！请您确认、修改或增删字段，这将是村民需要填写的项目。', { type: 'fieldConfirm' });
+                    currentStep = 'fieldConfirm';
+                }, 2000);
+            }
+        }
+
+        // 直接填写模式的选项
+        function handleBigTableFill() {
+            addMessage('agent', '正在从村庄大表中读取已有信息并进行AI自动填写...');
+            setTimeout(() => {
+                addMessage('agent', '✅ 自动填写完成！已从村庄大表中提取并填写了所有可匹配字段。表格已生成，您可以导出查看。', { type: 'fillResult' });
+            }, 2000);
+        }
+
+        function handleAssistMaterialUpload() {
+            document.getElementById('assistMaterialInput').click();
+        }
+
+        function handleAssistMaterialChange(event) {
+            const file = event.target.files[0];
+            if (file) {
+                addMessage('agent', `正在从"${file.name}"中识别相同字段并自动填写...`);
+                setTimeout(() => {
+                    addMessage('agent', '✅ 识别完成！已从辅助材料中提取并填写了以下字段:姓名、身份证号、房屋结构。您可以继续手动补充其他字段。', { type: 'fillResult' });
+                }, 2000);
+            }
+        }
+
+        function removeField(field) {
+            selectedFields = selectedFields.filter(f => f !== field);
+            // 重新渲染当前卡片
+            const lastMessage = document.querySelector('.message:last-child .card');
+            if (lastMessage) {
+                lastMessage.outerHTML = renderCard({ type: 'fieldConfirm' });
+            }
+        }
+
+        function addField() {
+            const input = document.getElementById('newFieldInput');
+            if (input && input.value.trim()) {
+                selectedFields.push(input.value.trim());
+                input.value = '';
+                // 重新渲染当前卡片
+                const lastMessage = document.querySelector('.message:last-child .card');
+                if (lastMessage) {
+                    lastMessage.outerHTML = renderCard({ type: 'fieldConfirm' });
+                }
+            }
+        }
+
+        function handleFieldConfirm() {
+            currentStep = 'audienceSelect';
+            addMessage('agent', '好的，字段已确认。请选择需要通知的人群范围。', { type: 'audienceSelect' });
+        }
+
+        function handleAudienceSelect(audience) {
+            if (audience === 'household') {
+                currentStep = 'sendConfirm';
+                addMessage('agent', '已为您选中所有户主,共152人。请确认通知内容,点击即可发送。', { type: 'sendConfirm' });
+            } else if (audience === 'specific') {
+                addMessage('agent', '请选择特定人群类型:', { type: 'specificAudience' });
+            } else if (audience === 'all') {
+                currentStep = 'sendConfirm';
+                addMessage('agent', '已为您选中全体村民,共328人。请确认通知内容,点击即可发送。', { type: 'sendConfirm', count: 328 });
+            } else if (audience === 'custom') {
+                addMessage('agent', '请自定义选择需要通知的人员:', { type: 'customAudience' });
+            }
+        }
+
+        function handleSpecificAudienceSelect(type) {
+            const audienceMap = {
+                'lowIncome': { name: '低保户', count: 45 },
+                'elderly': { name: '60岁以上老人', count: 89 },
+                'disabled': { name: '残疾人', count: 23 },
+                'poverty': { name: '建档立卡贫困户', count: 37 }
+            };
+            const selected = audienceMap[type];
+            currentStep = 'sendConfirm';
+            addMessage('agent', `已为您选中${selected.name},共${selected.count}人。请确认通知内容,点击即可发送。`, { type: 'sendConfirm', count: selected.count });
+        }
+
+        function handleCustomAudienceConfirm() {
+            currentStep = 'sendConfirm';
+            addMessage('agent', '已为您选中自定义人员,共67人。请确认通知内容,点击即可发送。', { type: 'sendConfirm', count: 67 });
+        }
+
+        function handleSendConfirm(count = 152) {
+            currentStep = 'sent';
+            addMessage('agent', `✅ 发送成功!村民们会收到填表通知的。您可以随时点击顶部的 [📊 任務情況] 按钮来查看填写进度。`);
+        }
+
+        function handleViewDetailList() {
+            addMessage('agent', '这是未填写人员的详细名单,您可以进行催办或代填操作。', { type: 'detailList' });
+        }
+
+        function handleSelectPerson(id) {
+            if (selectedPeople.includes(id)) {
+                selectedPeople = selectedPeople.filter(pid => pid !== id);
+                selectAll = false;
+            } else {
+                selectedPeople.push(id);
+                if (selectedPeople.length === peopleList.length) {
+                    selectAll = true;
+                }
+            }
+            // 重新渲染当前卡片
+            const lastMessage = document.querySelector('.message:last-child .card');
+            if (lastMessage) {
+                lastMessage.outerHTML = renderDetailListCard();
+            }
+        }
+
+        function handleSelectAll() {
+            if (selectAll) {
+                selectedPeople = [];
+                selectAll = false;
+            } else {
+                selectedPeople = peopleList.map(p => p.id);
+                selectAll = true;
+            }
+            // 重新渲染当前卡片
+            const lastMessage = document.querySelector('.message:last-child .card');
+            if (lastMessage) {
+                lastMessage.outerHTML = renderDetailListCard();
+            }
+        }
+
+        function handleFillFor(name) {
+            addMessage('agent', `好的,请开始为'${name}'填写信息。`, { type: 'fillForm', name: name });
+        }
+
+        function handleBatchRemind() {
+            if (selectedPeople.length > 0) {
+                addMessage('agent', `✅ 操作成功!提醒消息已发送给选中的${selectedPeople.length}位村民。`);
+            }
+        }
+
+        function handleRemindAll() {
+            addMessage('agent', '好的,提醒消息已成功发送给全部117位未填写的村民。');
+        }
+
+        function handleExportDraft() {
+            addMessage('agent', '✅ 草稿已导出。请您处理完毕后,将最终版文件直接拖拽到这里,或在下方对话框输入"上传最终版",我将为您完成后续的数据更新。');
+        }
+
+        function handleSendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (message) {
+                addMessage('user', message);
+                if (message.includes('上传最终版')) {
+                    setTimeout(() => {
+                        addMessage('agent', '好的,请上传您的最终版Excel文件,我将为您进行数据比对与更新到"村大表"。', { type: 'fileUpload' });
+                    }, 500);
+                }
+                input.value = '';
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                handleSendMessage();
+            }
+        }
+    </script>
+</body>
+</html>

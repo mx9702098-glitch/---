@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能填表助理 - 乡村事务智能管理系统</title>
+    <link rel="stylesheet" href="app.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="avatar">
+                    <i class="fas fa-robot"></i>
+                    <i class="fas fa-sparkles sparkle-icon"></i>
+                </div>
+                <div class="header-info">
+                    <h1>
+                        智能填表助理
+                        <i class="fas fa-bolt"></i>
+                    </h1>
+                    <p>
+                        <i class="fas fa-shield-alt"></i>
+                        乡村事务智能管理系统
+                    </p>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="icon-btn notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-dot"></span>
+                </button>
+                <button class="icon-btn">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <div class="status-badge">
+                    <div class="status-dot"></div>
+                    在线
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Chat Area -->
+            <div class="chat-section">
+                <div class="chat-header">
+                    <h2>对话区域</h2>
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message assistant-message">
+                        <div class="message-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-bubble">
+                                <p>您好！我是小耕，您的乡村事务助理。请告诉我您需要什么帮助？</p>
+                            </div>
+                            <div class="message-time" id="initialTime"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="输入您的指令..." />
+                    <button id="sendButton">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Display Area -->
+            <div class="content-section">
+                <div id="contentArea" class="content-area">
+                    <!-- Welcome Screen -->
+                    <div class="welcome-screen">
+                        <div class="welcome-icon">
+                            <i class="fas fa-robot"></i>
+                            <i class="fas fa-sparkles sparkle-animation"></i>
+                        </div>
+                        <div class="welcome-text">
+                            <h3>
+                                <i class="fas fa-comments"></i>
+                                智能助理待命中
+                            </h3>
+                            <p>选择快捷操作或输入自然语言指令</p>
+                        </div>
+                        
+                        <!-- Quick Actions -->
+                        <div class="quick-actions">
+                            <button class="quick-action-btn" data-action="upload-table">
+                                <i class="fas fa-table"></i>
+                                <span>上传表格</span>
+                            </button>
+                            <button class="quick-action-btn" data-action="notify">
+                                <i class="fas fa-users"></i>
+                                <span>发送通知</span>
+                            </button>
+                            <button class="quick-action-btn" data-action="stats">
+                                <i class="fas fa-chart-bar"></i>
+                                <span>数据统计</span>
+                            </button>
+                            <button class="quick-action-btn" data-action="export">
+                                <i class="fas fa-download"></i>
+                                <span>导出数据</span>
+                            </button>
+                        </div>
+
+                        <!-- Example Commands -->
+                        <div class="example-commands">
+                            <p>
+                                <i class="fas fa-bolt"></i>
+                                示例指令:
+                            </p>
+                            <div class="command-badges">
+                                <span class="command-badge">
+                                    <i class="fas fa-upload"></i>
+                                    上传文件,创建五保户信息统计
+                                </span>
+                                <span class="command-badge">
+                                    <i class="fas fa-bell"></i>
+                                    通知所有户主
+                                </span>
+                                <span class="command-badge">
+                                    <i class="fas fa-chart-line"></i>
+                                    导出数据
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 隐藏的文件上传输入框 -->
+    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.txt,.pdf,.jpg,.jpeg,.png" style="display: none;">
+    <input type="file" id="wechatInput" accept=".txt,.html,.zip" style="display: none;">
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "path": "/Users/maimai/CodeBuddy/20251009160816",
+  "desc": "这是一个村委会数据管理系统，包含智能填表助理、村务管理助手和村民档案管理等功能模块。系统支持表格识别、数据收集、村民信息管理等乡村事务智能化管理功能。",
+  "id": "146f1d981215497d893ac30af53e1fc8",
+  "data": {
+    "spaceKey": "146f1d981215497d893ac30af53e1fc8",
+    "connections": {
+      "webIDE": "https://146f1d981215497d893ac30af53e1fc8.codebuddy.cloudstudio.club",
+      "preview": "https://146f1d981215497d893ac30af53e1fc8--{port}.codebuddy.cloudstudio.club",
+      "api": "https://146f1d981215497d893ac30af53e1fc8--api.codebuddy.cloudstudio.club",
+      "pty": "https://146f1d981215497d893ac30af53e1fc8--pty.codebuddy.cloudstudio.club"
+    }
+  },
+  "config": {
+    "api": "https://146f1d981215497d893ac30af53e1fc8--api.codebuddy.cloudstudio.club",
+    "pty": "https://146f1d981215497d893ac30af53e1fc8--pty.codebuddy.cloudstudio.club",
+    "region": "ap-shanghai",
+    "spaceKey": "146f1d981215497d893ac30af53e1fc8"
+  }
+}

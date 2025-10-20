@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>村委会数据管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 自定义样式 */
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .slide-up {
+            transform: translateY(100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        .slide-up.active {
+            transform: translateY(0);
+        }
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease-in-out;
+        }
+        .fade-in.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .tab-active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+        }
+        .status-active { background-color: #dbeafe; color: #1e40af; }
+        .status-completed { background-color: #dcfce7; color: #166534; }
+        .status-unsynced { background-color: #fef3c7; color: #92400e; }
+        .status-synced { background-color: #f3e8ff; color: #7c3aed; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- 主页面 -->
+    <div id="homePage" class="min-h-screen bg-gray-50">
+        <!-- 顶部导航栏 -->
+        <div class="bg-gray-50 px-4 py-3">
+            <div class="flex items-center justify-between">
+                <i class="fas fa-bars text-gray-600 text-lg"></i>
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-ellipsis-h text-gray-600"></i>
+                    <div class="w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center">
+                        <i class="fas fa-question text-white text-xs"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab导航 -->
+        <div class="bg-white px-4 py-3 border-b border-gray-200">
+            <div class="flex space-x-6">
+                <div class="text-center">
+                    <div class="text-gray-800 font-medium border-b-2 border-green-500 pb-2">个人中心</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-gray-400">本周等级排行榜</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-gray-400">本村排行榜</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 用户信息卡片 -->
+        <div class="bg-white mx-4 mt-4 rounded-xl p-4 shadow-sm">
+            <div class="flex items-center space-x-3">
+                <div class="w-16 h-16 bg-green-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-user text-green-600 text-2xl"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center space-x-2">
+                        <h3 class="text-lg font-semibold text-gray-800">拓村小耘</h3>
+                        <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">会员</span>
+                        <span class="text-gray-500 text-sm">个人主页</span>
+                    </div>
+                    <p class="text-gray-600 text-sm mt-1">乡村旅游推荐官 · 铜关村铜关村二组村民</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 功能网格 -->
+        <div class="px-4 mt-6">
+            <div class="grid grid-cols-4 gap-4">
+                <!-- 第一行 -->
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-file-alt text-gray-600"></i>
+                    </div>
+                    <span class="text-xs text-gray-600">我的申请</span>
+                </div>
+                <div class="text-center relative">
+                    <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-bell text-gray-600"></i>
+                    </div>
+                    <div class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">99+</div>
+                    <span class="text-xs text-gray-600">我的消息</span>
+                </div>
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-users text-gray-600"></i>
+                    </div>
+                    <span class="text-xs text-gray-600">我的家庭</span>
+                </div>
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-heart text-gray-600"></i>
+                    </div>
+                    <span class="text-xs text-gray-600">关注和想去</span>
+                </div>
+                
+                <!-- 第二行 -->
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-gem text-gray-600"></i>
+                    </div>
+                    <span class="text-xs text-gray-600">我的元宝</span>
+                </div>
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-archive text-gray-600"></i>
+                    </div>
+                    <span class="text-xs text-gray-600">腾讯文档</span>
+                </div>
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-plus text-gray-400"></i>
+                    </div>
+                    <span class="text-xs text-gray-600"></span>
+                </div>
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-plus text-gray-400"></i>
+                    </div>
+                    <span class="text-xs text-gray-600"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 我的工作台 -->
+        <div class="px-4 mt-8">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">我的工作台</h3>
+                <div class="flex items-center text-gray-400 text-sm">
+                    <span>全部</span>
+                    <i class="fas fa-chevron-right ml-1"></i>
+                </div>
+            </div>
+            
+            <div class="flex space-x-4">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-2 relative">
+                        <i class="fas fa-search text-green-600 text-xl"></i>
+                        <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-plus text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <span class="text-xs text-gray-600">村民档案</span>
+                </div>
+                
+                <div onclick="goToSmartCollection()" class="text-center cursor-pointer">
+                    <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-2 relative">
+                        <i class="fas fa-chart-line text-green-600 text-xl"></i>
+                        <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-clock text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <span class="text-xs text-gray-600">村庄表格</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 我的热情值 -->
+        <div class="px-4 mt-8 mb-20">
+            <div class="flex items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">我的热情值</h3>
+                <div class="ml-2 w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center">
+                    <i class="fas fa-info text-white text-xs"></i>
+                </div>
+                <span class="ml-2 text-sm text-gray-500">你的热情值超越了99.12%的村民</span>
+            </div>
+            
+            <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-gray-600 text-sm">总计</div>
+                        <div class="text-2xl font-bold text-gray-800 flex items-center">
+                            1437
+                            <i class="fas fa-fire text-orange-500 ml-1"></i>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-gray-600 text-sm">本周</div>
+                        <div class="text-2xl font-bold text-gray-800 flex items-center justify-center">
+                            1
+                            <i class="fas fa-fire text-orange-500 ml-1"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="bg-yellow-400 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium">
+                            提升热情值 >
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 小耘形象 -->
+                <div class="flex justify-center mt-4">
+                    <div class="w-16 h-20 bg-green-600 rounded-t-full relative">
+                        <div class="absolute top-2 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-yellow-200 rounded-full"></div>
+                        <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded">
+                            小耘
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
+            <div class="grid grid-cols-4 py-2">
+                <div class="text-center py-2">
+                    <i class="fas fa-home text-xl text-blue-600 mb-1"></i>
+                    <div class="text-xs text-blue-600 font-medium">首页</div>
+                </div>
+                <div class="text-center py-2">
+                    <i class="fas fa-tasks text-xl text-gray-400 mb-1"></i>
+                    <div class="text-xs text-gray-400">任务</div>
+                </div>
+                <div class="text-center py-2">
+                    <i class="fas fa-chart-line text-xl text-gray-400 mb-1"></i>
+                    <div class="text-xs text-gray-400">统计</div>
+                </div>
+                <div class="text-center py-2">
+                    <i class="fas fa-user text-xl text-gray-400 mb-1"></i>
+                    <div class="text-xs text-gray-400">我的</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 智能收集页面 -->
+    <div id="smartCollectionPage" class="min-h-screen hidden">
+        <!-- 顶部导航 -->
+        <div class="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <button onclick="goToHome()" class="p-2 -ml-2 rounded-lg hover:bg-gray-100">
+                    <i class="fas fa-arrow-left text-gray-600"></i>
+                </button>
+                <h1 class="text-lg font-semibold text-gray-800">村庄表格</h1>
+            </div>
+        </div>
+
+        <!-- Tab 导航 -->
+        <div class="bg-white border-b border-gray-200 hidden">
+            <div class="flex">
+                <button id="historyTab" class="flex-1 py-3 px-4 text-center font-medium tab-active">
+                    历史表格
+                </button>
+            </div>
+        </div>
+
+        <!-- 历史表格管理内容 -->
+        <div id="historyContent" class="p-4">
+            <!-- 搜索框和新增按钮 -->
+            <div class="mb-4 flex items-center space-x-3">
+                <div class="relative flex-1">
+                    <input type="text" placeholder="搜索任务标题或创建人..." 
+                           class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
+                <button id="addTaskBtn" class="bg-blue-600 text-white px-4 py-3 rounded-lg text-sm font-medium whitespace-nowrap">
+                    新增
+                </button>
+            </div>
+
+            <!-- 任务列表 -->
+            <div id="taskList" class="space-y-3">
+                <!-- 任务卡片将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- 导入表格对话框 -->
+    <div id="importDialog" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-md w-full p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">导入表格</h3>
+                <button onclick="closeImportDialog()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="space-y-3">
+                <button onclick="uploadPhoto()" class="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 transition-colors">
+                    <i class="fas fa-camera text-2xl text-gray-400 mb-2"></i>
+                    <div class="font-medium text-gray-700">上传照片识别</div>
+                    <div class="text-sm text-gray-500">拍照或选择图片</div>
+                </button>
+                <button onclick="selectFromWechat()" class="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-green-500 transition-colors">
+                    <i class="fab fa-weixin text-2xl text-green-500 mb-2"></i>
+                    <div class="font-medium text-gray-700">从微信聊天选择</div>
+                    <div class="text-sm text-gray-500">选择微信文件</div>
+                </button>
+            </div>
+            
+            <!-- 标题识别区域 -->
+            <div id="titleRecognitionArea" class="hidden mt-4 pt-4 border-t border-gray-200">
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">任务标题</label>
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            id="recognizedTitle" 
+                            placeholder="系统将自动识别标题..." 
+                            class="w-full px-3 py-3 border-2 border-red-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
+                        >
+                        <div class="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <i class="fas fa-edit text-gray-400"></i>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">标题已自动识别，您可以编辑修改</p>
+                </div>
+                
+                <button onclick="confirmCreateTask()" class="w-full bg-gray-800 text-white py-3 rounded-lg font-medium hover:bg-gray-900 transition-colors">
+                    确认创建
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- 任务数据详情半屏卡片 -->
+    <div id="taskDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-end">
+        <div class="bg-white rounded-t-xl w-full max-h-[80vh] overflow-y-auto slide-up">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800">任务数据详情</h3>
+                <button onclick="closeTaskDetail()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-4">
+                <div id="taskDetailContent">
+                    <!-- 内容将通过JavaScript动态生成 -->
+                </div>
+                <div class="mt-6 flex space-x-3">
+                    
+                    <button onclick="editOCRData()" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-edit mr-2"></i>修改识别结果
+                    </button>
+                    <button onclick="showDeleteConfirmInDetail()" class="flex-1 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 border border-red-200">
+                        <i class="fas fa-trash mr-2"></i>删除任务
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <!-- 识别结果页面 -->
+    <div id="ocrResultModal" class="fixed inset-0 bg-white hidden z-50 overflow-y-auto">
+        <!-- 顶部导航 -->
+        <div class="bg-white border-b border-gray-200 p-4 flex items-center justify-between sticky top-0 z-10">
+            <button onclick="closeOCRResult()" class="p-2 -ml-2 rounded-lg hover:bg-gray-100">
+                <i class="fas fa-arrow-left text-gray-600"></i>
+            </button>
+            <h1 class="text-lg font-semibold text-gray-800">识别结果</h1>
+            <div class="w-8"></div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="p-4">
+            <!-- 任务标题 -->
+            <div class="mb-4">
+                <div class="flex items-center justify-between mb-2">
+                    <h2 id="ocrTaskTitle" class="text-xl font-bold text-green-600">任务标题</h2>
+                    <button class="p-2 hover:bg-gray-100 rounded">
+                        <i class="fas fa-edit text-gray-400"></i>
+                    </button>
+                </div>
+                <div class="flex items-center space-x-4 text-sm text-gray-500">
+                    <span id="ocrImageCount">已上传3张图片</span>
+                    <span>·</span>
+                    <span id="ocrRecordCount">共识别19条记录</span>
+                    <span>·</span>
+                    <span id="ocrErrorCount" class="text-orange-600">3项待确认</span>
+                </div>
+                <button class="mt-2 px-3 py-1 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
+                    <i class="fas fa-chart-bar mr-1"></i>数据统计
+                </button>
+            </div>
+
+            <!-- 数据表格 -->
+            <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full" id="ocrResultTable">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-600">序号</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-600">组别</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-600">姓名</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-600">身份证号码</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-600">电话号码</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-600">务工地点</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ocrResultTableBody">
+                            <!-- 数据行将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部按钮栏 -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 flex space-x-3">
+            <button onclick="continueAddImages()" class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50">
+                继续添加
+            </button>
+            <button onclick="imageTextProofread()" class="flex-1 px-4 py-3 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600">
+                图文校对
+            </button>
+            <button onclick="confirmOCRResult()" class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700">
+                确认
+            </button>
+        </div>
+        <div class="h-20"></div>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div id="toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg z-50 hidden">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
